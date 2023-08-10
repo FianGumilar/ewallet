@@ -16,7 +16,7 @@ type User struct {
 	Username          string       `gorm:"column:username"`
 	Password          string       `gorm:"column:password"`
 	EmailVerifiedAtDB sql.NullTime `gorm:"column:email_verified_at"`
-	EmailVerifiedAt   time.Time    `gorm:"-"`
+	EmailVerifiedAt   time.Time    `db:"-"`
 }
 
 type UserRepository interface {
