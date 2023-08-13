@@ -39,8 +39,8 @@ func (r repository) FindByUserID(ctx context.Context, id int64) (account domain.
 
 // Update implements domain.AccountRepository.
 func (r repository) Update(ctx context.Context, account *domain.Account) error {
-	query := `UPDATE accounts SET account = ? WHERE id = ?`
+	query := `UPDATE accounts SET balance = ? WHERE id = ?`
 
-	_, err := r.db.ExecContext(ctx, query, &account.Account, &account.ID)
+	_, err := r.db.ExecContext(ctx, query, &account.Balance, &account.ID)
 	return err
 }
