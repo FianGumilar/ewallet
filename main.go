@@ -33,10 +33,11 @@ func main() {
 	userRepository := user.NewUserRepository(dbConnection)
 	accountRepository := account.NewRepository(dbSqlConnection)
 	transactionRepository := transaction.NewTransactionRepository(dbConnection)
-	notificationRepositry := notification.NewNotificationRepository(dbConnection)
+	notificationRepository := notification.NewRepository(dbSqlConnection)
 
 	userService := user.NewUserService(userRepository, cacheConnection)
-	transactionService := transaction.NewTransactionService(accountRepository, transactionRepository, cacheConnection, notificationRepositry)
+	transactionService := transaction.NewTransactionService(accountRepository, transactionRepository, cacheConnection, notificationRepository)
+	notificationService := notification.NewNotificationService(notificationRepository)
 
 	authMid := middleware.Authenticate(userService)
 
@@ -44,6 +45,7 @@ func main() {
 
 	user.NewAuth(app, userService, authMid)
 	transaction.NewTransfer(app, authMid, transactionService)
+	notification.NewNotification(app, authMid, notificationService)
 
 	app.Listen(conf.Server.Host + ":" + conf.Server.Port)
 }

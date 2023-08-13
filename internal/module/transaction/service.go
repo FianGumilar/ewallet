@@ -141,7 +141,7 @@ func (s service) notificationAfterTransfer(sofAccount domain.Account, dofAccount
 	notificationSender := domain.Notification{
 		UserID:    sofAccount.UserID,
 		Title:     "Transfer Berhasil",
-		Body:      fmt.Sprintf("Transfer senilai %.2f berhasil", amount),
+		Body:      fmt.Sprintf("Transfer senilai %.2f", amount),
 		IsRead:    0,
 		Status:    1,
 		CreatedAt: time.Now(),
@@ -149,14 +149,14 @@ func (s service) notificationAfterTransfer(sofAccount domain.Account, dofAccount
 
 	notificationReceiver := domain.Notification{
 		UserID:    dofAccount.UserID,
-		Title:     "Dana Berhasil Diterima",
-		Body:      fmt.Sprintf("Dana Berhasil Diterima %.2f", amount),
+		Title:     "Dana diterima",
+		Body:      fmt.Sprintf("Dana diterima senilai %.2f", amount),
 		IsRead:    0,
 		Status:    1,
 		CreatedAt: time.Now(),
 	}
 
-	//Insert notificationSender & notificationRecever
+	// Insert to DB
 	_ = s.notificationRepository.Insert(context.Background(), &notificationSender)
 	_ = s.notificationRepository.Insert(context.Background(), &notificationReceiver)
 }
