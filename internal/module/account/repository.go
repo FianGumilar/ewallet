@@ -2,47 +2,45 @@ package account
 
 import (
 	"context"
+	"database/sql"
 
 	"fiangumilar.id/e-wallet/domain"
-	"gorm.io/gorm"
 )
 
 type repository struct {
-	db *gorm.DB
+	db *sql.DB
 }
 
-func NewAccountRepository(con *gorm.DB) domain.AccountRepository {
+func NewRepository(con *sql.DB) domain.AccountRepository {
 	return &repository{db: con}
 }
 
-// FindByUserID implements domain.AccountRepository.
-func (r repository) FindByUserID(ctx context.Context, id int64) (account domain.Account, err error) {
-	dataset := r.db.Debug().WithContext(ctx).Where("id = ?", id).First(&account)
-	if dataset.Error != nil {
-		return account, dataset.Error
+// FindByAccount implements domain.AccountRepository.
+func (r repository) FindByAccount(ctx context.Context, account string) (acc domain.Account, err error) {
+	query := `SELECT * FROM accounts WHERE account = ?`
+	row := r.db.QueryRowContext(ctx, query, account)
+	err = row.Scan(&acc.ID, &acc.UserID, &acc.Account, &acc.Balance)
+	if err != nil {
+		return acc, nil
 	}
 	return
 }
 
-// FindByAccountNumber implements domain.AccountRepository.
-func (r repository) FindByAccountNumber(ctx context.Context, accNumber string) (account domain.Account, err error) {
-	dataset := r.db.Debug().WithContext(ctx).Where("account_number = ?", accNumber).First(&account)
-	if dataset.Error != nil {
-		return account, dataset.Error
+// FindByUserID implements domain.AccountRepository.
+func (r repository) FindByUserID(ctx context.Context, id int64) (account domain.Account, err error) {
+	query := `SELECT * FROM accounts WHERE id = ?`
+	row := r.db.QueryRowContext(ctx, query, id)
+	err = row.Scan(&account.ID, &account.UserID, &account.Account, &account.Balance)
+	if err != nil {
+		return account, nil
 	}
 	return
 }
 
 // Update implements domain.AccountRepository.
 func (r repository) Update(ctx context.Context, account *domain.Account) error {
-	executor := r.db.Debug().
-		WithContext(ctx).
-		Model(account). // Use &account if update all accounts
-		Where("id = ?", account.ID).
-		Update("account_number", account.AccountNumber)
+	query := `UPDATE accounts SET account = ? WHERE id = ?`
 
-	if executor.Error != nil {
-		return executor.Error
-	}
-	return nil
+	_, err := r.db.ExecContext(ctx, query, &account.Account, &account.ID)
+	return err
 }

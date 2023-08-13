@@ -9,6 +9,7 @@ import (
 	"fiangumilar.id/e-wallet/internal/config"
 	"fiangumilar.id/e-wallet/internal/middleware"
 	"fiangumilar.id/e-wallet/internal/module/account"
+	"fiangumilar.id/e-wallet/internal/module/notification"
 	"fiangumilar.id/e-wallet/internal/module/transaction"
 	"fiangumilar.id/e-wallet/internal/module/user"
 	"github.com/gofiber/fiber/v2"
@@ -18,6 +19,7 @@ func main() {
 	conf := config.Get()
 
 	dbConnection := component.GetConnectionDB(conf)
+	dbSqlConnection := component.GetSqlDbConnection(conf)
 
 	//Migration
 	migration.Migration()
@@ -29,11 +31,12 @@ func main() {
 	log.Println("Successfully connected Redis")
 
 	userRepository := user.NewUserRepository(dbConnection)
-	accountRepository := account.NewAccountRepository(dbConnection)
+	accountRepository := account.NewRepository(dbSqlConnection)
 	transactionRepository := transaction.NewTransactionRepository(dbConnection)
+	notificationRepositry := notification.NewNotificationRepository(dbConnection)
 
 	userService := user.NewUserService(userRepository, cacheConnection)
-	transactionService := transaction.NewTransactionService(accountRepository, transactionRepository, cacheConnection)
+	transactionService := transaction.NewTransactionService(accountRepository, transactionRepository, cacheConnection, notificationRepositry)
 
 	authMid := middleware.Authenticate(userService)
 

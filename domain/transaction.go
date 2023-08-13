@@ -25,6 +25,6 @@ type TransactionRepository interface {
 }
 
 type TransactionService interface {
-	TransaferInquiry(ctx context.Context, req dto.TransferInquiryReq) (dto.TransferInquiryRes, error)
+	TransferInquiry(ctx context.Context, req dto.TransferInquiryReq) (dto.TransferInquiryRes, error)
 	TransferExecute(ctx context.Context, req dto.TransferExecuteReq) error
 }

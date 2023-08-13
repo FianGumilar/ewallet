@@ -3,14 +3,14 @@ package domain
 import "context"
 
 type Account struct {
-	ID            int64   `gorm:"primaryKey"`
-	UserID        int64   `gorm:"column:user_id"`
-	AccountNumber string  `gorm:"column:account_number"`
-	Balance       float64 `gorm:"column:balance"`
+	ID      int64   `db:"id"`
+	UserID  int64   `db:"user_id"`
+	Account string  `db:"account"`
+	Balance float64 `db:"balance"`
 }
 
 type AccountRepository interface {
 	FindByUserID(ctx context.Context, id int64) (Account, error)
-	FindByAccountNumber(ctx context.Context, accNumber string) (Account, error)
+	FindByAccount(ctx context.Context, account string) (Account, error)
 	Update(ctx context.Context, account *Account) error
 }

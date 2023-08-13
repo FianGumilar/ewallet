@@ -18,7 +18,7 @@ func NewTransfer(app *fiber.App, authMid fiber.Handler, transactionService domai
 	}
 
 	app.Post("transfer/inquiry", authMid, api.TransferInquiry)
-	app.Post("transfer/execution", authMid, api.TransferExecute)
+	app.Post("transfer/execute", authMid, api.TransferExecute)
 }
 
 func (a apiTransaction) TransferInquiry(ctx *fiber.Ctx) error {
@@ -31,7 +31,7 @@ func (a apiTransaction) TransferInquiry(ctx *fiber.Ctx) error {
 		})
 	}
 
-	inquiry, err := a.transactionService.TransaferInquiry(ctx.Context(), req)
+	inquiry, err := a.transactionService.TransferInquiry(ctx.Context(), req)
 	if err != nil {
 		log.Printf("error %s", err)
 		return ctx.Status(400).JSON(dto.Response{
