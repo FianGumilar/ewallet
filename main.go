@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"fiangumilar.id/e-wallet/dto"
 	"fiangumilar.id/e-wallet/internal/component"
 	"fiangumilar.id/e-wallet/internal/component/cache"
 	"fiangumilar.id/e-wallet/internal/component/migration"
@@ -12,6 +13,7 @@ import (
 	"fiangumilar.id/e-wallet/internal/module/notification"
 	"fiangumilar.id/e-wallet/internal/module/transaction"
 	"fiangumilar.id/e-wallet/internal/module/user"
+	"fiangumilar.id/e-wallet/internal/sse"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -30,13 +32,17 @@ func main() {
 	}
 	log.Println("Successfully connected Redis")
 
+	hub := &dto.Hub{
+		NotificationChannel: map[int64]chan dto.NotificationData{},
+	}
+
 	userRepository := user.NewUserRepository(dbConnection)
 	accountRepository := account.NewRepository(dbSqlConnection)
 	transactionRepository := transaction.NewTransactionRepository(dbConnection)
 	notificationRepository := notification.NewRepository(dbSqlConnection)
 
 	userService := user.NewUserService(userRepository, cacheConnection)
-	transactionService := transaction.NewTransactionService(accountRepository, transactionRepository, cacheConnection, notificationRepository)
+	transactionService := transaction.NewTransactionService(accountRepository, transactionRepository, cacheConnection, notificationRepository, hub)
 	notificationService := notification.NewNotificationService(notificationRepository)
 
 	authMid := middleware.Authenticate(userService)
@@ -46,6 +52,8 @@ func main() {
 	user.NewAuth(app, userService, authMid)
 	transaction.NewTransfer(app, authMid, transactionService)
 	notification.NewNotification(app, authMid, notificationService)
+
+	sse.NewNotificationSse(app, authMid, hub)
 
 	app.Listen(conf.Server.Host + ":" + conf.Server.Port)
 }
