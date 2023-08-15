@@ -11,6 +11,7 @@ import (
 	"fiangumilar.id/e-wallet/internal/middleware"
 	"fiangumilar.id/e-wallet/internal/module/account"
 	"fiangumilar.id/e-wallet/internal/module/notification"
+	"fiangumilar.id/e-wallet/internal/module/template"
 	"fiangumilar.id/e-wallet/internal/module/transaction"
 	"fiangumilar.id/e-wallet/internal/module/user"
 	"fiangumilar.id/e-wallet/internal/sse"
@@ -40,10 +41,11 @@ func main() {
 	accountRepository := account.NewRepository(dbSqlConnection)
 	transactionRepository := transaction.NewTransactionRepository(dbConnection)
 	notificationRepository := notification.NewRepository(dbSqlConnection)
+	templateRepository := template.NewTemplateRepository(dbSqlConnection)
 
 	userService := user.NewUserService(userRepository, cacheConnection)
-	transactionService := transaction.NewTransactionService(accountRepository, transactionRepository, cacheConnection, notificationRepository, hub)
-	notificationService := notification.NewNotificationService(notificationRepository)
+	notificationService := notification.NewNotificationService(notificationRepository, templateRepository, hub)
+	transactionService := transaction.NewTransactionService(accountRepository, transactionRepository, cacheConnection, notificationService)
 
 	authMid := middleware.Authenticate(userService)
 
