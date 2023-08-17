@@ -4,6 +4,7 @@ type Config struct {
 	Database Database
 	Server   Server
 	Redis    Redis
+	Midtrans Midtrans
 }
 
 type Database struct {
@@ -22,4 +23,9 @@ type Server struct {
 type Redis struct {
 	Addr string
 	Pass string
+}
+
+type Midtrans struct {
+	Key    string
+	IsProd bool
 }

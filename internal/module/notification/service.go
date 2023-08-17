@@ -62,6 +62,7 @@ func (s service) Insert(ctx context.Context, userID int64, code string, data map
 		return domain.ErrCodeNotFound
 	}
 
+	// buffer for save message notification
 	body := new(bytes.Buffer)
 	t := template.Must(template.New("notification").Parse(tmpl.Body))
 	err = t.Execute(body, data)
