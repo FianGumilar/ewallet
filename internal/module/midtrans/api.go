@@ -11,13 +11,13 @@ type apiMidtrans struct {
 	topUpService    domain.TopUpService
 }
 
-func NewMidtransApi(app *fiber.App, authMid fiber.Handler, midtransService domain.MidtransService, topUpService domain.TopUpService) {
+func NewMidtransApi(app *fiber.App, midtransService domain.MidtransService, topUpService domain.TopUpService) {
 	api := &apiMidtrans{
 		topUpService:    topUpService,
 		midtransService: midtransService,
 	}
 
-	app.Post("midtrans/payment-callback", authMid, api.paymentHandlerNotification)
+	app.Post("midtrans/payment-callback", api.paymentHandlerNotification)
 }
 
 func (a apiMidtrans) paymentHandlerNotification(ctx *fiber.Ctx) error {

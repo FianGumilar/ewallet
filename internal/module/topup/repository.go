@@ -29,9 +29,9 @@ func (r repository) FindById(ctx context.Context, id string) (topup domain.TopUp
 
 // Insert implements domain.TopUpRepository.
 func (r repository) Insert(ctx context.Context, t *domain.TopUp) error {
-	query := `INSERT INTO topup (user_id, status, amount, snap_url) VALUES (?, ?, ?, ?);`
+	query := `INSERT INTO topup (id, user_id, status, amount, snap_url) VALUES (?, ?, ?, ?, ?);`
 
-	_, err := r.db.ExecContext(ctx, query, t.UserID, t.Status, t.Amount, t.SnapURL)
+	_, err := r.db.ExecContext(ctx, query, t.ID, t.UserID, t.Status, t.Amount, t.SnapURL)
 	return err
 }
 
