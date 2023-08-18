@@ -50,7 +50,7 @@ func main() {
 	notificationService := notification.NewNotificationService(notificationRepository, templateRepository, hub)
 	transactionService := transaction.NewTransactionService(accountRepository, transactionRepository, cacheConnection, notificationService)
 	midtransService := midtrans.NewMidtransService(conf)
-	topUpService := topup.NewTopUpService(notificationService, midtransService, topUpRepository, accountRepository)
+	topUpService := topup.NewTopUpService(notificationService, midtransService, topUpRepository, accountRepository, transactionRepository)
 
 	authMid := middleware.Authenticate(userService)
 
