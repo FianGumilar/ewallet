@@ -10,6 +10,7 @@ import (
 	"fiangumilar.id/e-wallet/internal/config"
 	"fiangumilar.id/e-wallet/internal/middleware"
 	"fiangumilar.id/e-wallet/internal/module/account"
+	"fiangumilar.id/e-wallet/internal/module/factor"
 	"fiangumilar.id/e-wallet/internal/module/midtrans"
 	"fiangumilar.id/e-wallet/internal/module/notification"
 	"fiangumilar.id/e-wallet/internal/module/template"
@@ -45,19 +46,21 @@ func main() {
 	notificationRepository := notification.NewRepository(dbSqlConnection)
 	templateRepository := template.NewTemplateRepository(dbSqlConnection)
 	topUpRepository := topup.NewTopUpRepository(dbSqlConnection)
+	factorRepository := factor.NewFactorRepository(dbSqlConnection)
 
 	userService := user.NewUserService(userRepository, cacheConnection)
 	notificationService := notification.NewNotificationService(notificationRepository, templateRepository, hub)
 	transactionService := transaction.NewTransactionService(accountRepository, transactionRepository, cacheConnection, notificationService)
 	midtransService := midtrans.NewMidtransService(conf)
 	topUpService := topup.NewTopUpService(notificationService, midtransService, topUpRepository, accountRepository, transactionRepository)
+	factorService := factor.NewFactorService(factorRepository)
 
 	authMid := middleware.Authenticate(userService)
 
 	app := fiber.New()
 
 	user.NewAuth(app, userService, authMid)
-	transaction.NewTransfer(app, authMid, transactionService)
+	transaction.NewTransfer(app, authMid, transactionService, factorService)
 	notification.NewNotification(app, authMid, notificationService)
 	topup.NewTopUpApi(app, authMid, topUpService)
 	midtrans.NewMidtransApi(app, midtransService, topUpService)
