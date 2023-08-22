@@ -34,7 +34,6 @@ cd ewallet
 Copy the .env.example file to .env:
 
 ```
-
 Install dependencies:
 
 ```
