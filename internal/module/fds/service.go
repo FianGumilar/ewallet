@@ -2,7 +2,6 @@ package fds
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"fiangumilar.id/e-wallet/domain"
@@ -56,8 +55,6 @@ func (s service) IsAuthorized(ctx context.Context, ip string, userId int64) bool
 	// Check distance or displacement in kilometers
 	distanceHour := newAccess.AccessTime.Sub(lastLogin.AccessTime)
 	distanceChange := utils.GetDistance(lastLogin.Lat, lastLogin.Lon, newAccess.Lat, newAccess.Lon)
-
-	log.Printf("hour: %f", "distance: %f\n", distanceHour.Hours(), distanceChange)
 
 	// Check if distance/time(V= S/T) trick over 400
 	if distanceChange/distanceHour.Hours() > 400 {
