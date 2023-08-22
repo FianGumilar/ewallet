@@ -10,11 +10,13 @@ import (
 
 type apiUserAuth struct {
 	userService domain.UserService
+	fdsService  domain.FdsService
 }
 
-func NewAuth(app *fiber.App, userService domain.UserService, authMid fiber.Handler) {
+func NewAuth(app *fiber.App, userService domain.UserService, fdsService domain.FdsService, authMid fiber.Handler) {
 	api := &apiUserAuth{
 		userService: userService,
+		fdsService:  fdsService,
 	}
 
 	app.Post("token/generate", api.GenerateToken)
@@ -34,6 +36,11 @@ func (a apiUserAuth) GenerateToken(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Status(401).JSON("Failed to authenticate")
 	}
+
+	if !a.fdsService.IsAuthorized(ctx.Context(), ctx.Get("X-FORWARDED-FOR"), token.UserId) {
+		return ctx.SendStatus(401)
+	}
+
 	return ctx.Status(200).JSON(token)
 }
 
