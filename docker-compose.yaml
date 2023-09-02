@@ -1,0 +1,26 @@
+version: "3.5"
+
+services:
+  redis:
+    container_name: redis
+    image: redis:6
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - 6379:6379
+    volumes:
+      - ./config/redis.conf:/usr/local/etc/redis/redis.conf
+  elasticsearch:
+    image: elasticsearch:8.9.1
+    environment:
+      - discovery.type=single-node
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+  kibana:
+    image: kibana:7.17.12
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+
+volumes:
+  elasticsearch-data:

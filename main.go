@@ -11,9 +11,6 @@ import (
 	"fiangumilar.id/e-wallet/internal/middleware"
 	"fiangumilar.id/e-wallet/internal/module/account"
 	"fiangumilar.id/e-wallet/internal/module/factor"
-	"fiangumilar.id/e-wallet/internal/module/fds"
-	ipchecker "fiangumilar.id/e-wallet/internal/module/ip_checker"
-	loginlog "fiangumilar.id/e-wallet/internal/module/login_log"
 	"fiangumilar.id/e-wallet/internal/module/midtrans"
 	"fiangumilar.id/e-wallet/internal/module/notification"
 	"fiangumilar.id/e-wallet/internal/module/template"
@@ -43,6 +40,8 @@ func main() {
 		NotificationChannel: map[int64]chan dto.NotificationData{},
 	}
 
+	component.Log.Info("App E-wallet")
+
 	userRepository := user.NewUserRepository(dbConnection)
 	accountRepository := account.NewRepository(dbSqlConnection)
 	transactionRepository := transaction.NewTransactionRepository(dbConnection)
@@ -50,7 +49,6 @@ func main() {
 	templateRepository := template.NewTemplateRepository(dbSqlConnection)
 	topUpRepository := topup.NewTopUpRepository(dbSqlConnection)
 	factorRepository := factor.NewFactorRepository(dbSqlConnection)
-	loginLogRepository := loginlog.NewLoginLogRepository(dbSqlConnection)
 
 	userService := user.NewUserService(userRepository, cacheConnection)
 	notificationService := notification.NewNotificationService(notificationRepository, templateRepository, hub)
@@ -58,14 +56,12 @@ func main() {
 	midtransService := midtrans.NewMidtransService(conf)
 	topUpService := topup.NewTopUpService(notificationService, midtransService, topUpRepository, accountRepository, transactionRepository)
 	factorService := factor.NewFactorService(factorRepository)
-	ipCheckService := ipchecker.NewIpCheckerService()
-	fdsService := fds.NewFdsService(ipCheckService, loginLogRepository)
 
 	authMid := middleware.Authenticate(userService)
 
 	app := fiber.New()
 
-	user.NewAuth(app, userService, fdsService, authMid)
+	user.NewAuth(app, userService, authMid)
 	transaction.NewTransfer(app, authMid, transactionService, factorService)
 	notification.NewNotification(app, authMid, notificationService)
 	topup.NewTopUpApi(app, authMid, topUpService)
